@@ -38,7 +38,7 @@ pipeline {
 
     stage('semgrep-scan') {
       when {
-        branch "main"
+        branch "origin/main"
       }
       steps {
         sh '''docker pull semgrep/semgrep && \
