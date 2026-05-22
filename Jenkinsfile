@@ -7,6 +7,15 @@ pipeline {
     SEMGREP_REPO_NAME = env.GIT_URL.replaceFirst(/^https:\/\/github.com\/(.*)$/, '$1')
   }
   stages {
+    stage('print-branch') {
+      steps {
+        echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+        echo "GIT_BRANCH: ${env.GIT_BRANCH}"
+        echo "CHANGE_BRANCH: ${env.CHANGE_BRANCH}"
+        echo "CHANGE_TARGET: ${env.CHANGE_TARGET}"
+      }
+    }
+
     stage('semgrep-diff-scan') {
       when {
         branch "PR-*"
@@ -26,6 +35,7 @@ pipeline {
             semgrep/semgrep semgrep ci '''
       }
     }
+
     stage('semgrep-scan') {
       when {
         branch "main"
@@ -41,7 +51,6 @@ pipeline {
     }
   }
   post {
-    // Clean after build
     always {
       cleanWs()
     }
