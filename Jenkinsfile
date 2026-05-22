@@ -46,15 +46,46 @@ pipeline {
         }
       }
       steps {
-        sh '''docker pull semgrep/semgrep && \
-            docker run \
-            -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
-            -e SEMGREP_REPO_NAME=$SEMGREP_REPO_NAME \
-            -v "$(pwd):$(pwd)" --workdir $(pwd) \
-            semgrep/semgrep semgrep ci '''
+        //sh '''docker pull semgrep/semgrep && \
+        //    docker run \
+        //    -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
+        //    -e SEMGREP_REPO_NAME=$SEMGREP_REPO_NAME \
+        //    -v "$(pwd):$(pwd)" --workdir $(pwd) \
+        //    semgrep/semgrep semgrep ci '''
       }
     }
   }
+
+  stage('semgrep-docker-memory') {
+    steps {
+      sh '''
+        set -e
+  
+        CONTAINER_NAME="semgrep-memory-test-$BUILD_NUMBER"
+  
+        docker pull semgrep/semgrep
+  
+        docker run --name "$CONTAINER_NAME" \
+          -e SEMGREP_APP_TOKEN="$SEMGREP_APP_TOKEN" \
+          -e SEMGREP_REPO_NAME="$SEMGREP_REPO_NAME" \
+          -v "$PWD:/src" \
+          -w /src \
+          semgrep/semgrep \
+          semgrep ci &
+  
+        SEMGREP_PID=$!
+  
+        echo "===== DOCKER MEMORY WHILE SEMGREP RUNS ====="
+        while docker ps --format '{{.Names}}' | grep -q "$CONTAINER_NAME"; do
+          docker stats --no-stream "$CONTAINER_NAME" || true
+          sleep 5
+        done
+  
+        wait $SEMGREP_PID
+      '''
+    }
+  }
+  
   post {
     always {
       cleanWs()
