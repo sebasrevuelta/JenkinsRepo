@@ -54,7 +54,7 @@ pipeline {
         //    semgrep/semgrep semgrep ci '''
       }
     }
-  }
+  
 
   stage('semgrep-docker-memory') {
     steps {
@@ -85,7 +85,7 @@ pipeline {
       '''
     }
   }
-  
+  }
   post {
     always {
       cleanWs()
