@@ -66,6 +66,8 @@ stage('semgrep-scan') {
       STATS_PID=$!
 
       docker run --name "$CONTAINER_NAME" --rm \
+        --memory=2g \
+        --memory-swap=2g \
         -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
         -e SEMGREP_REPO_NAME=$SEMGREP_REPO_NAME \
         -v "$(pwd):$(pwd)" --workdir $(pwd) \
