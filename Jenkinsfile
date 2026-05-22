@@ -38,7 +38,12 @@ pipeline {
 
     stage('semgrep-scan') {
       when {
-        branch "origin/main"
+        anyOf {
+          branch "main"
+          expression { env.BRANCH_NAME == 'main' }
+          expression { env.GIT_BRANCH == 'origin/main' }
+          expression { env.GIT_BRANCH == 'main' }
+        }
       }
       steps {
         sh '''docker pull semgrep/semgrep && \
